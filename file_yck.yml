@@ -1,7 +1,5 @@
----
 # rpi_file_management.yml
 # 這個 playbook 用於在樹莓派上新增和刪除文件
-
 - name: 樹莓派文件管理
   hosts: yck
   become: yes  # 使用 sudo 權限
@@ -10,13 +8,13 @@
     files_to_create:
       - path: /home/yck/test_file1.txt
         content: "這是測試文件 1 的內容"
-        owner: pi
-        group: pi
+        owner: yck
+        group: yck
         mode: '0644'
       - path: /home/yck/test_file2.txt
         content: "這是測試文件 2 的內容"
-        owner: pi
-        group: pi
+        owner: yck
+        group: yck
         mode: '0644'
       - path: /home/yck/scripts/test_script.sh
         content: |
@@ -24,24 +22,23 @@
           echo "這是一個測試腳本"
           date
           echo "目前使用者: $(whoami)"
-        owner: pi
-        group: pi
+        owner: yck
+        group: yck
         mode: '0755'
     
     # 要刪除的文件列表
     files_to_delete:
-      - /home/pi/old_file1.txt
-      - /home/pi/old_file2.txt
-      - /home/pi/old_scripts/script.sh
-
+      - /home/yck/old_file1.txt
+      - /home/yck/old_file2.txt
+      - /home/yck/old_scripts/script.sh
   tasks:
     # 確保目錄存在
     - name: 確保所需目錄存在
       file:
         path: "{{ item.path | dirname }}"
         state: directory
-        owner: "{{ item.owner | default('pi') }}"
-        group: "{{ item.group | default('pi') }}"
+        owner: "{{ item.owner | default('yck') }}"
+        group: "{{ item.group | default('yck') }}"
         mode: '0755'
       loop: "{{ files_to_create }}"
       when: "'/' in item.path"
@@ -51,8 +48,8 @@
       copy:
         dest: "{{ item.path }}"
         content: "{{ item.content }}"
-        owner: "{{ item.owner | default('pi') }}"
-        group: "{{ item.group | default('pi') }}"
+        owner: "{{ item.owner | default('yck') }}"
+        group: "{{ item.group | default('yck') }}"
         mode: "{{ item.mode | default('0644') }}"
       loop: "{{ files_to_create }}"
     
