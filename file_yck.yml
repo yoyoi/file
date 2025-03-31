@@ -30,6 +30,46 @@
     files_to_delete:
       - /home/yck/test_file1.txt
   tasks:
+  # 連續 ping 確保連線
+    - name: 連續 ping 測試連線 (1/5)
+      ping:
+      register: ping_result1
+    
+    - name: 顯示第一次 ping 結果
+      debug:
+        var: ping_result1
+    
+    - name: 連續 ping 測試連線 (2/5)
+      ping:
+      register: ping_result2
+    
+    - name: 顯示第二次 ping 結果
+      debug:
+        var: ping_result2
+    
+    - name: 連續 ping 測試連線 (3/5)
+      ping:
+      register: ping_result3
+    
+    - name: 顯示第三次 ping 結果
+      debug:
+        var: ping_result3
+    
+    - name: 連續 ping 測試連線 (4/5)
+      ping:
+      register: ping_result4
+    
+    - name: 顯示第四次 ping 結果
+      debug:
+        var: ping_result4
+    
+    - name: 連續 ping 測試連線 (5/5)
+      ping:
+      register: ping_result5
+    
+    - name: 顯示第五次 ping 結果
+      debug:
+        var: ping_result5
     # 確保目錄存在
     - name: 確保所需目錄存在
       file:
