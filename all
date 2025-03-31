@@ -1,0 +1,100 @@
+# rpi_file_management.yml
+# 這個 playbook 用於在多台機器上新增和刪除文件
+- name: 多台機器文件管理
+  hosts: rpi-inventories  # 使用群組名稱，包含多個機器
+  become: yes  # 使用 sudo 權限
+  vars:
+    # 要創建的文件列表
+    files_to_create:
+      - path: /home/{{ ansible_user }}/test_file1.txt
+        content: "這是測試文件 1 的內容"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+      - path: /home/{{ ansible_user }}/test_file2.txt
+        content: "這是測試文件 2 的內容"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+      - path: /home/{{ ansible_user }}/scripts/test_script.sh
+        content: |
+          #!/bin/bash
+          echo "這是一個測試腳本"
+          date
+          echo "目前使用者: $(whoami)"
+          echo "主機名稱: $(hostname)"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+    
+    # 要刪除的文件列表
+    files_to_delete:
+      - /home/{{ ansible_user }}/test_file1.txt
+  tasks:
+    # 連續 ping 確保連線
+    - name: 連續 ping 測試連線
+      ping:
+      register: ping_result
+    
+    - name: 顯示 ping 結果
+      debug:
+        var: ping_result
+    
+    # 顯示主機資訊
+    - name: 顯示主機資訊
+      debug:
+        msg: "正在處理主機: {{ inventory_hostname }} (IP: {{ ansible_host | default(inventory_hostname) }})"
+    
+    # 確保目錄存在
+    - name: 確保所需目錄存在
+      file:
+        path: "{{ item.path | dirname }}"
+        state: directory
+        owner: "{{ item.owner | default(ansible_user) }}"
+        group: "{{ item.group | default(ansible_user) }}"
+        mode: '0755'
+      loop: "{{ files_to_create }}"
+      when: "'/' in item.path"
+    
+    # 創建文件
+    - name: 創建指定文件
+      copy:
+        dest: "{{ item.path }}"
+        content: "{{ item.content }}"
+        owner: "{{ item.owner | default(ansible_user) }}"
+        group: "{{ item.group | default(ansible_user) }}"
+        mode: "{{ item.mode | default('0644') }}"
+      loop: "{{ files_to_create }}"
+    
+    # 刪除文件
+    - name: 刪除指定文件
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop: "{{ files_to_delete }}"
+      
+    # 檢查創建的文件是否存在
+    - name: 檢查文件是否成功創建
+      stat:
+        path: "{{ item.path }}"
+      loop: "{{ files_to_create }}"
+      register: file_check
+    
+    # 顯示結果
+    - name: 顯示創建結果
+      debug:
+        msg: "主機 {{ inventory_hostname }}: 文件 {{ item.item.path }} {{ '已成功創建' if item.stat.exists else '創建失敗' }}"
+      loop: "{{ file_check.results }}"
+    
+    # 檢查文件是否成功刪除
+    - name: 檢查文件是否成功刪除
+      stat:
+        path: "{{ item }}"
+      loop: "{{ files_to_delete }}"
+      register: delete_check
+    
+    # 顯示刪除結果
+    - name: 顯示刪除結果
+      debug:
+        msg: "主機 {{ inventory_hostname }}: 文件 {{ item.item }} {{ '刪除失敗，仍然存在' if item.stat.exists else '已成功刪除或不存在' }}"
+      loop: "{{ delete_check.results }}"
