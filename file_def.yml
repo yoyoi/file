@@ -6,17 +6,17 @@
   vars:
     # 要創建的文件列表
     files_to_create:
-      - path: /home/yck/test_file1.txt
+      - path: /home/def/test_file1.txt
         content: "這是測試文件 1 的內容"
         owner: def
         group: def
         mode: '0644'
-      - path: /home/yck/test_file2.txt
+      - path: /home/def/test_file2.txt
         content: "這是測試文件 2 的內容"
         owner: def
         group: def
         mode: '0644'
-      - path: /home/yck/scripts/test_script.sh
+      - path: /home/def/scripts/test_script.sh
         content: |
           #!/bin/bash
           echo "這是一個測試腳本"
