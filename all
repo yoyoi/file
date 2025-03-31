@@ -31,14 +31,23 @@
     files_to_delete:
       - /home/{{ ansible_user }}/test_file1.txt
   tasks:
-    # 連續 ping 確保連線
-    - name: 連續 ping 測試連線
-      ping:
+    - name: Ping test
+      ansible.builtin.ping:
       register: ping_result
-    
-    - name: 顯示 ping 結果
-      debug:
-        var: ping_result
+      
+    - name: Display ping status
+      ansible.builtin.debug:
+        msg: "Host {{ inventory_hostname }} is REACHABLE"
+      when: ping_result is success
+      
+    - name: Show failure message if ping fails
+      ansible.builtin.debug:
+        msg: "WARNING: Host {{ inventory_hostname }} is UNREACHABLE!"
+      when: ping_result is failed
+      
+    - name: Show connection details
+      ansible.builtin.debug:
+        msg: "Connection details - Host: {{ inventory_hostname }}, IP: {{ ansible_host | default('Not Specified') }}"
     
     # 顯示主機資訊
     - name: 顯示主機資訊
