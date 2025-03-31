@@ -28,9 +28,7 @@
     
     # 要刪除的文件列表
     files_to_delete:
-      - /home/yck/old_file1.txt
-      - /home/yck/old_file2.txt
-      - /home/yck/old_scripts/script.sh
+      - /home/yck/test_file1.txt
   tasks:
     # 確保目錄存在
     - name: 確保所需目錄存在
